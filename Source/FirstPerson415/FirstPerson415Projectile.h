@@ -38,7 +38,7 @@ class AFirstPerson415Projectile : public AActor
 	UPROPERTY()
 		UMaterialInstanceDynamic* dmiMat;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category="Effects")
 		UNiagaraSystem* colorP;
 
 public:
