@@ -3,6 +3,8 @@
 
 #include "FirstPerson415Character.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "CubeDMIMod.h"
 
 // Sets default values
@@ -10,6 +12,8 @@ ACubeDMIMod::ACubeDMIMod()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	bIsSpatiallyLoaded = false;
 
 	boxComp = CreateDefaultSubobject<UBoxComponent>("Box Component");
 	cubeMesh = CreateDefaultSubobject<UStaticMeshComponent>("Cube Mesh");
@@ -55,11 +59,18 @@ void ACubeDMIMod::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		float ranNumY = UKismetMathLibrary::RandomFloatInRange(0.f, 1.f);
 		float ranNumZ = UKismetMathLibrary::RandomFloatInRange(0.f, 1.f);
 
-		FVector4 randColor = FVector4(ranNumX, ranNumY, ranNumZ, 1.f);
+		FLinearColor randColor = FLinearColor(ranNumX, ranNumY, ranNumZ, 1.f);
 		if (dmiMat)
 		{
 			dmiMat->SetVectorParameterValue("Color", randColor);
 			dmiMat->SetScalarParameterValue("Darkness", ranNumX);
+
+			if (colorP)
+			{
+				UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(colorP, OtherComp, NAME_None, FVector(-20.f, 0.f, 0.f), FRotator(0.f), EAttachLocation::KeepRelativeOffset, true);
+
+				particleComp->SetNiagaraVariableLinearColor(FString("RandColor"), randColor);
+			}
 		}
 	}
 }
